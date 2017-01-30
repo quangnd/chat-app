@@ -7,13 +7,30 @@ var port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 
+var numUsers = 0;
 io.on('connection', function(socket){
-    console.log('a user connected!');
+    var addedUser = false;
 
-    socket.on('chat message', function(msg){ 
-        io.emit('chat message', msg);
+    socket.on('new message', function(msg){ 
+        socket.broadcast.emit('new message', {
+            username: socket.username,
+            message: msg
+        });
     });
 
+    socket.on('add user', function(username){
+        if (addedUser) return;
+
+        // we store the username in the socket session for this client
+        socket.username = username;
+        ++numUsers;
+        addedUser = true;
+        socket.emit('login', {
+            numUsers: numUsers
+        });
+
+        //TODO: process user joined
+    })
     socket.on('disconnect', function() {
         console.log('user disconnect');
     });
