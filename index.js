@@ -30,9 +30,16 @@ io.on('connection', function(socket){
         });
 
         //TODO: process user joined
+        socket.broadcast.emit('user joined', {
+            username: socket.username,
+            numUsers: numUsers
+        })
     })
     socket.on('disconnect', function() {
         console.log('user disconnect');
+        if (addedUser) {
+            --numUser;
+        }
     });
 });
 
